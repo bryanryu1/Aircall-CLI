@@ -1,5 +1,5 @@
 import { Args, Command, Flags } from '@oclif/core';
-import { createClient } from '../../lib/client.js';
+import { createClient, validatePathParam } from '../../lib/client.js';
 import { formatSingle, OutputFormat } from '../../lib/formatter.js';
 
 export default class CallsTopics extends Command {
@@ -21,8 +21,9 @@ export default class CallsTopics extends Command {
   async run(): Promise<void> {
     const { args, flags } = await this.parse(CallsTopics);
     const client = createClient();
+    const callId = validatePathParam(args.call_id, 'call_id');
 
-    const response = await client.get(`/v1/calls/${args.call_id}/topics`);
+    const response = await client.get(`/v1/calls/${callId}/topics`);
     this.log(formatSingle(response.data, flags.format as OutputFormat));
   }
 }

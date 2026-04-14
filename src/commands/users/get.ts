@@ -1,5 +1,5 @@
 import { Args, Command, Flags } from '@oclif/core';
-import { createClient } from '../../lib/client.js';
+import { createClient, validatePathParam } from '../../lib/client.js';
 import { formatSingle, OutputFormat } from '../../lib/formatter.js';
 
 export default class UsersGet extends Command {
@@ -18,8 +18,9 @@ export default class UsersGet extends Command {
   async run(): Promise<void> {
     const { args, flags } = await this.parse(UsersGet);
     const client = createClient();
+    const userId = validatePathParam(args.user_id, 'user_id');
 
-    const response = await client.get(`/v1/users/${args.user_id}`);
+    const response = await client.get(`/v1/users/${userId}`);
     this.log(formatSingle(response.data.user || response.data, flags.format as OutputFormat));
   }
 }

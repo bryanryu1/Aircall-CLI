@@ -1,5 +1,5 @@
 import { Args, Command } from '@oclif/core';
-import { createClient } from '../../lib/client.js';
+import { createClient, validatePathParam } from '../../lib/client.js';
 
 export default class WebhooksDelete extends Command {
   static description = 'Delete a webhook';
@@ -13,7 +13,8 @@ export default class WebhooksDelete extends Command {
   async run(): Promise<void> {
     const { args } = await this.parse(WebhooksDelete);
     const client = createClient();
-    await client.delete(`/v1/webhooks/${args.id}`);
+    const id = validatePathParam(args.id, 'id');
+    await client.delete(`/v1/webhooks/${id}`);
     this.log(`Webhook ${args.id} deleted.`);
   }
 }

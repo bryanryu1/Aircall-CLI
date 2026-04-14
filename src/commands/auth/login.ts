@@ -1,25 +1,17 @@
 import { Command, Flags } from '@oclif/core';
 import { input, password } from '@inquirer/prompts';
 import axios from 'axios';
-import { setCredentials } from '../../lib/config.js';
+import { setCredentials, getVersion } from '../../lib/config.js';
 
 export default class AuthLogin extends Command {
   static description = 'Authenticate with the Aircall API using your API credentials';
 
   static examples = [
     '$ aircall auth login',
-    '$ aircall auth login --api-id YOUR_API_ID --api-token YOUR_API_TOKEN',
+    '$ AIRCALL_API_ID=xxx AIRCALL_API_TOKEN=yyy aircall auth login',
   ];
 
   static flags = {
-    'api-id': Flags.string({
-      description: 'Your Aircall API ID (skips interactive prompt)',
-      required: false,
-    }),
-    'api-token': Flags.string({
-      description: 'Your Aircall API token (skips interactive prompt)',
-      required: false,
-    }),
     'base-url': Flags.string({
       description: 'API base URL',
       default: 'https://api.aircall.io',
@@ -28,10 +20,16 @@ export default class AuthLogin extends Command {
 
   async run(): Promise<void> {
     const { flags } = await this.parse(AuthLogin);
-    let { 'api-id': apiId, 'api-token': apiToken, 'base-url': baseUrl } = flags;
+    const baseUrl = flags['base-url'];
 
-    // Interactive prompts if flags not provided
-    if (!apiId || !apiToken) {
+    // Priority: env vars > interactive prompt
+    let apiId = process.env.AIRCALL_API_ID;
+    let apiToken = process.env.AIRCALL_API_TOKEN;
+
+    if (apiId && apiToken) {
+      this.log('');
+      this.log('Using credentials from environment variables.');
+    } else {
       this.log('');
       this.log('  Aircall CLI Authentication');
       this.log('  ─────────────────────────');
@@ -59,12 +57,13 @@ export default class AuthLogin extends Command {
     this.log('Validating credentials...');
 
     const credentials = Buffer.from(`${apiId}:${apiToken}`).toString('base64');
+    const version = getVersion();
 
     try {
       const response = await axios.get(`${baseUrl}/v1/ping`, {
         headers: {
           Authorization: `Basic ${credentials}`,
-          'User-Agent': `aircall-cli/0.1.0 (https://github.com/bryanryu1/aircall-cli)`,
+          'User-Agent': `aircall-cli/${version} (https://github.com/bryanryu1/aircall-cli)`,
         },
       });
 
@@ -76,7 +75,7 @@ export default class AuthLogin extends Command {
           const companyRes = await axios.get(`${baseUrl}/v1/company`, {
             headers: {
               Authorization: `Basic ${credentials}`,
-              'User-Agent': `aircall-cli/0.1.0 (https://github.com/bryanryu1/aircall-cli)`,
+              'User-Agent': `aircall-cli/${version} (https://github.com/bryanryu1/aircall-cli)`,
             },
           });
 

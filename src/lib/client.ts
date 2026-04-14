@@ -1,20 +1,8 @@
 import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
-import { getCredentials } from './config.js';
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
+import { getCredentials, getVersion } from './config.js';
 
-// Read version from package.json
-function getVersion(): string {
-  try {
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = dirname(__filename);
-    const pkg = JSON.parse(readFileSync(join(__dirname, '../../package.json'), 'utf-8'));
-    return pkg.version;
-  } catch {
-    return '0.0.0';
-  }
-}
+const MAX_RETRIES = 3;
+const RETRY_SYMBOL = Symbol('retryCount');
 
 let rateLimitRemaining: number | null = null;
 let rateLimitReset: number | null = null;
@@ -34,7 +22,7 @@ export function createClient(): AxiosInstance {
     },
   });
 
-  // Response interceptor for rate limit tracking
+  // Response interceptor for rate limit tracking + retry with max attempts
   client.interceptors.response.use(
     (response: AxiosResponse) => {
       const remaining = response.headers['x-aircallapi-remaining'];
@@ -45,15 +33,36 @@ export function createClient(): AxiosInstance {
     },
     async (error) => {
       if (error.response?.status === 429) {
+        const config = error.config as any;
+        const retryCount = config[RETRY_SYMBOL] || 0;
+
+        if (retryCount >= MAX_RETRIES) {
+          throw new Error(
+            `Rate limited after ${MAX_RETRIES} retries. The API rate limit is 60 requests/minute. Wait a moment and try again.`,
+          );
+        }
+
         const resetTime = error.response.headers['x-aircallapi-reset'];
         if (resetTime) {
           const waitMs = parseInt(resetTime, 10) * 1000 - Date.now();
           if (waitMs > 0 && waitMs < 120000) {
-            process.stderr.write(`Rate limited. Waiting ${Math.ceil(waitMs / 1000)}s...\n`);
+            process.stderr.write(
+              `Rate limited. Waiting ${Math.ceil(waitMs / 1000)}s... (retry ${retryCount + 1}/${MAX_RETRIES})\n`,
+            );
             await new Promise((resolve) => setTimeout(resolve, waitMs));
-            return client.request(error.config);
+            config[RETRY_SYMBOL] = retryCount + 1;
+            return client.request(config);
           }
         }
+
+        // No valid reset header — exponential backoff
+        const backoffMs = Math.min(1000 * 2 ** retryCount, 60000);
+        process.stderr.write(
+          `Rate limited. Retrying in ${Math.ceil(backoffMs / 1000)}s... (retry ${retryCount + 1}/${MAX_RETRIES})\n`,
+        );
+        await new Promise((resolve) => setTimeout(resolve, backoffMs));
+        config[RETRY_SYMBOL] = retryCount + 1;
+        return client.request(config);
       }
       throw error;
     },
@@ -72,6 +81,21 @@ export function createClient(): AxiosInstance {
   });
 
   return client;
+}
+
+/**
+ * Validates and sanitizes a path parameter (e.g., call_id, contact_id).
+ * Prevents path traversal and injection by ensuring the value is a safe identifier.
+ */
+export function validatePathParam(value: string, paramName: string): string {
+  const sanitized = value.trim();
+
+  // Must be alphanumeric, dashes, or underscores only
+  if (!/^[a-zA-Z0-9_-]+$/.test(sanitized)) {
+    throw new Error(`Invalid ${paramName}: "${value}". Must contain only alphanumeric characters, dashes, or underscores.`);
+  }
+
+  return encodeURIComponent(sanitized);
 }
 
 export function getRateLimitInfo() {
