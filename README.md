@@ -2,7 +2,7 @@
 
 [![npm version](https://img.shields.io/npm/v/aircall-cli.svg)](https://www.npmjs.com/package/aircall-cli)
 
-> **Warning:** This is an unofficial CLI tool for the Aircall API. It is not affiliated with, endorsed by, or maintained by Aircall. Use at your own risk.
+> **Warning:** This is an unofficial CLI tool for the Aircall API. It is not affiliated with, endorsed by, or maintained by Aircall. Simply a project in vibe coding that may provide value to some users :) 
 
 A command-line interface for interacting with the [Aircall Public API](https://developer.aircall.io/api-references/). Manage calls, contacts, users, numbers, tags, teams, and webhooks from your terminal.
 
