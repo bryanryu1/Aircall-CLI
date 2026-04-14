@@ -1,0 +1,71 @@
+{
+  "name": "aircall-cli",
+  "version": "0.1.0",
+  "description": "Unofficial CLI for the Aircall Public API",
+  "type": "module",
+  "bin": {
+    "aircall": "./bin/run.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "bin",
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "node --loader ts-node/esm ./bin/dev.js",
+    "lint": "eslint src --ext .ts",
+    "test": "echo \"No tests yet\" && exit 0",
+    "postpack": "rm -f oclif.manifest.json",
+    "prepack": "npm run build && oclif manifest"
+  },
+  "oclif": {
+    "bin": "aircall",
+    "dirname": "aircall-cli",
+    "commands": "./dist/commands",
+    "topicSeparator": " ",
+    "plugins": [
+      "@oclif/plugin-help"
+    ]
+  },
+  "keywords": [
+    "aircall",
+    "cli",
+    "api",
+    "voip"
+  ],
+  "author": "Bryan Ryu",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bryanryu1/aircall-cli.git"
+  },
+  "homepage": "https://github.com/bryanryu1/aircall-cli#readme",
+  "bugs": {
+    "url": "https://github.com/bryanryu1/aircall-cli/issues"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^8.4.1",
+    "@oclif/core": "^4",
+    "@oclif/plugin-help": "^6",
+    "axios": "^1.7",
+    "chalk": "^5",
+    "cli-table3": "^0.6",
+    "conf": "^13"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "eslint": "^8",
+    "oclif": "^4",
+    "prettier": "^3",
+    "ts-node": "^10",
+    "tsup": "^8",
+    "tsx": "^4.21.0",
+    "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

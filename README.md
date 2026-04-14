@@ -1,0 +1,174 @@
+# aircall-cli
+
+[![npm version](https://img.shields.io/npm/v/aircall-cli.svg)](https://www.npmjs.com/package/aircall-cli)
+
+> **Warning:** This is an unofficial CLI tool for the Aircall API. It is not affiliated with, endorsed by, or maintained by Aircall. Use at your own risk.
+
+A command-line interface for interacting with the [Aircall Public API](https://developer.aircall.io/api-references/). Manage calls, contacts, users, numbers, tags, teams, and webhooks from your terminal.
+
+## Installation
+
+```bash
+npm install -g aircall-cli
+```
+
+Requires Node.js 18 or later.
+
+## Quick Start
+
+1. **Authenticate** with your Aircall API credentials (found in the Aircall Dashboard under Integrations > API keys):
+
+```bash
+aircall auth login --api-id YOUR_API_ID --api-token YOUR_API_TOKEN
+```
+
+2. **Test your connection:**
+
+```bash
+aircall ping
+```
+
+3. **Run your first command:**
+
+```bash
+aircall calls list
+aircall users list --format json
+```
+
+## Available Commands
+
+### Authentication
+
+| Command | Description |
+|---------|-------------|
+| `aircall auth login` | Authenticate with API credentials |
+
+### Calls
+
+| Command | Description |
+|---------|-------------|
+| `aircall calls list` | List calls |
+| `aircall calls get <id>` | Get details for a specific call |
+| `aircall calls search` | Search calls with filters |
+
+### Contacts
+
+| Command | Description |
+|---------|-------------|
+| `aircall contacts list` | List contacts |
+| `aircall contacts get <id>` | Get details for a specific contact |
+| `aircall contacts create` | Create a new contact |
+| `aircall contacts search` | Search contacts by phone or email |
+
+### Users
+
+| Command | Description |
+|---------|-------------|
+| `aircall users list` | List users |
+| `aircall users get <id>` | Get details for a specific user |
+
+### Numbers
+
+| Command | Description |
+|---------|-------------|
+| `aircall numbers list` | List phone numbers |
+| `aircall numbers get <id>` | Get details for a specific number |
+
+### Tags
+
+| Command | Description |
+|---------|-------------|
+| `aircall tags list` | List tags |
+| `aircall tags get <id>` | Get details for a specific tag |
+| `aircall tags create` | Create a new tag |
+
+### Teams
+
+| Command | Description |
+|---------|-------------|
+| `aircall teams list` | List teams |
+| `aircall teams get <id>` | Get details for a specific team |
+
+### Webhooks
+
+| Command | Description |
+|---------|-------------|
+| `aircall webhooks list` | List webhooks |
+| `aircall webhooks get <id>` | Get details for a specific webhook |
+| `aircall webhooks create` | Create a new webhook |
+| `aircall webhooks delete <id>` | Delete a webhook |
+
+### Utility
+
+| Command | Description |
+|---------|-------------|
+| `aircall ping` | Test your API connection |
+
+## Pagination
+
+All list commands support pagination:
+
+```bash
+# Specific page
+aircall calls list --page 2 --per-page 50
+
+# Auto-paginate through all results
+aircall calls list --all
+```
+
+The `--all` flag automatically fetches every page. The Aircall API caps results at 10,000 items for calls and contacts.
+
+## Output Formats
+
+Every command supports `--format table` (default) or `--format json`:
+
+```bash
+# Human-readable table (default)
+aircall users list
+
+# Machine-readable JSON (great for piping to jq)
+aircall users list --format json
+aircall users list --format json | jq '.[].email'
+```
+
+## Rate Limiting
+
+The CLI automatically handles Aircall API rate limits:
+
+- Tracks `X-AircallAPI-Remaining` and `X-AircallAPI-Reset` headers
+- Proactively pauses when approaching the limit
+- Automatically retries on 429 responses with appropriate backoff
+- Displays a message to stderr when waiting
+
+## Configuration
+
+Credentials are stored at `~/.config/aircall-cli/config.json`. You can override the API base URL:
+
+```bash
+aircall auth login --api-id ID --api-token TOKEN --base-url https://api.aircall.io
+```
+
+To clear stored credentials, delete the config file:
+
+```bash
+rm -rf ~/.config/aircall-cli
+```
+
+## Development
+
+```bash
+git clone https://github.com/bryanryu1/aircall-cli.git
+cd aircall-cli
+npm install
+npm run build
+
+# Run in development mode (uses ts-node, no build needed)
+./bin/dev.js --help
+
+# Run production build
+./bin/run.js --help
+```
+
+## License
+
+MIT
