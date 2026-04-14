@@ -41,7 +41,9 @@ aircall users list --format json
 
 | Command | Description |
 |---------|-------------|
-| `aircall auth login` | Authenticate with API credentials |
+| `aircall auth login` | Authenticate with API credentials (interactive or via flags) |
+| `aircall auth status` | Check current authentication status |
+| `aircall auth logout` | Remove stored credentials |
 
 ### Calls
 
@@ -50,6 +52,20 @@ aircall users list --format json
 | `aircall calls list` | List calls |
 | `aircall calls get <id>` | Get details for a specific call |
 | `aircall calls search` | Search calls with filters |
+
+### Conversation Intelligence
+
+| Command | Description |
+|---------|-------------|
+| `aircall calls summary <id>` | Get the AI-generated summary of a call |
+| `aircall calls topics <id>` | Get the topics discussed in a call |
+| `aircall calls sentiments <id>` | Get the sentiment analysis of a call |
+| `aircall calls action-items <id>` | Get the action items extracted from a call |
+| `aircall calls transcription <id>` | Get the transcription of a call |
+| `aircall calls realtime-transcription <id>` | Get the realtime transcription of a call |
+| `aircall calls custom-summary <id>` | Get the custom summary result (AI Assist Pro) |
+| `aircall calls evaluations <id>` | Get evaluation data for a call |
+| `aircall calls playbook <id>` | Get the playbook result (AI Assist Pro) |
 
 ### Contacts
 
