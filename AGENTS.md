@@ -13,7 +13,7 @@
 | Command | Use when |
 |---|---|
 | `aircall auth login` | First-time setup. Prompts for API ID and API Token interactively. Credentials are from the Aircall Dashboard > Integrations > API Keys. |
-| `aircall auth login --api-id ID --api-token TOKEN` | Non-interactive login (scripting/CI). |
+| `AIRCALL_API_ID=xxx AIRCALL_API_TOKEN=yyy aircall auth login` | Non-interactive login via env vars (scripting/CI). |
 | `aircall auth status` | Check if currently authenticated and which account. |
 | `aircall auth logout` | Clear stored credentials. |
 

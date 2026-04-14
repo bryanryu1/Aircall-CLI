@@ -19,7 +19,7 @@ Requires Node.js 18 or later.
 1. **Authenticate** with your Aircall API credentials (found in the Aircall Dashboard under Integrations > API keys):
 
 ```bash
-aircall auth login --api-id YOUR_API_ID --api-token YOUR_API_TOKEN
+aircall auth login
 ```
 
 2. **Test your connection:**
@@ -158,16 +158,16 @@ The CLI automatically handles Aircall API rate limits:
 
 ## Configuration
 
-Credentials are stored at `~/.config/aircall-cli/config.json`. You can override the API base URL:
+Credentials are stored locally with restricted permissions (owner-only read/write). For CI/scripting, use environment variables instead of the interactive prompt:
 
 ```bash
-aircall auth login --api-id ID --api-token TOKEN --base-url https://api.aircall.io
+AIRCALL_API_ID=xxx AIRCALL_API_TOKEN=yyy aircall auth login
 ```
 
-To clear stored credentials, delete the config file:
+To clear stored credentials:
 
 ```bash
-rm -rf ~/.config/aircall-cli
+aircall auth logout
 ```
 
 ## Development
